@@ -1,28 +1,45 @@
-const dummyData = [
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+const PORT = 2005;
+
+// Middleware
+app.use(cors());
+app.use(express.json()); // to parse JSON body
+
+// Dummy data
+let dummyData = [
   { id: 1, name: "Ali", age: 22 },
   { id: 2, name: "Sara", age: 25 },
   { id: 3, name: "Ahmed", age: 30 },
   { id: 4, name: "Zara", age: 19 },
   { id: 5, name: "Bilal", age: 27 },
-  { id: 6, name: "Fatima", age: 24 },
-  { id: 7, name: "Usman", age: 29 },
-  { id: 8, name: "Ayesha", age: 21 },
-  { id: 9, name: "Hamza", age: 26 },
-  { id: 10, name: "Noor", age: 23 }
 ];
-// ===== FOR IMPORT EXPRESS =====
-const app=require("express")()
-// ===== PORT ASSIGN =====
-const PORT=2005;
-// ==== CORS ====
-const cors = require("cors")();
-app.use(cors);
 
-app.get("/tshirt",(req,res)=>{
-    res.status(200).send(dummyData)
-})
+// GET route — fetch all data
+app.get("/tshirt", (req, res) => {
+  res.status(200).json(dummyData);
+});
 
-app.listen(
-    PORT ,() =>console.log(`it's loive on ${PORT}`)
-    
-)
+// POST route — receive new data
+app.post("/tshirt", (req, res) => {
+  const { name, age } = req.body;
+  const newEntry = {
+    id: dummyData.length + 1,
+    name,
+    age: parseInt(age),
+  };
+
+  dummyData.push(newEntry);
+
+  res.status(201).json({
+    message: "Data received successfully!",
+    newEntry,
+  });
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
