@@ -1,45 +1,53 @@
-const express = require("express");
-const cors = require("cors");
+// index.js
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
 
 const app = express();
-const PORT = 2005;
-
-// Middleware
 app.use(cors());
-app.use(express.json()); // to parse JSON body
+app.use(express.json());
 
-// Dummy data
-let dummyData = [
-  { id: 1, name: "Ali", age: 22 },
-  { id: 2, name: "Sara", age: 25 },
-  { id: 3, name: "Ahmed", age: 30 },
-  { id: 4, name: "Zara", age: 19 },
-  { id: 5, name: "Bilal", age: 27 },
-];
+// ✅ MongoDB Connection
+mongoose.connect(
+  'mongodb+srv://fasihnasir60:YKlKFIggPt9jvbCd@api.qjijy60.mongodb.net/tshirtDB?retryWrites=true&w=majority&appName=api',
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+).then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => console.log('❌ MongoDB Error:', err));
 
-// GET route — fetch all data
-app.get("/tshirt", (req, res) => {
-  res.status(200).json(dummyData);
+// ✅ Mongoose Schema & Model
+const TshirtSchema = new mongoose.Schema({
+  name: String,
+  age: Number, // not String
 });
 
-// POST route — receive new data
-app.post("/tshirt", (req, res) => {
-  const { name, age } = req.body;
-  const newEntry = {
-    id: dummyData.length + 1,
-    name,
-    age: parseInt(age),
-  };
+const Tshirt = mongoose.model('Tshirt', TshirtSchema);
 
-  dummyData.push(newEntry);
-
-  res.status(201).json({
-    message: "Data received successfully!",
-    newEntry,
-  });
+// ✅ POST request — React se data aayega
+app.post('/tshirt', async (req, res) => {
+  try {
+    const tshirt = new Tshirt(req.body);
+    await tshirt.save();
+    res.status(201).json({ message: '✅ Data saved', data: tshirt });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Start server
+// ✅ GET request — MongoDB se data milega
+app.get('/tshirt', async (req, res) => {
+  try {
+    const data = await Tshirt.find();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ Start the server
+const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
