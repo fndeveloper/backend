@@ -48,6 +48,11 @@ app.get('/tshirt', async (req, res) => {
 
 // ✅ Start the server
 const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+app.listen(PORT, async () => {
+
+
+  // Optional: Fetch all t-shirts on server start (just for debug)
+  const allTshirts = await Tshirt.find();
+  console.log('🧥 T-Shirts in DB:', allTshirts);
 });
+
